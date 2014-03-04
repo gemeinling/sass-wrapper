@@ -40,11 +40,21 @@ function getArgs(options) {
 function compile(options) {
 
   var cp = require('child_process').spawn('sass', getArgs(options));
-
+  
+  if( options.callback ){
+    var stdoutBuffer = '';
+  }
+  
   cp.stdout.setEncoding('utf8');
   cp.stdout.on('data', function (data) {
     if (options.callback) {
-      options.callback(null, new Buffer(data).toString('utf8'));
+        stdoutBuffer += data;
+    }
+  });
+  
+  cp.stdout.on('close', function () {
+    if (options.callback) {
+      options.callback(null, stdoutBuffer);
     }
   });
 
